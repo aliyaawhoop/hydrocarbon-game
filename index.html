@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Hidrokarbon</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f9ff;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .intro {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #3498db;
+        }
+        .game-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .game-mode {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .mode-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .mode-btn:hover {
+            background-color: #2980b9;
+        }
+        .mode-btn.active {
+            background-color: #2c3e50;
+        }
+        #game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .molecule-display {
+            width: 100%;
+            height: 200px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .atom {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            user-select: none;
+        }
+        .bond {
+            position: absolute;
+            background-color: #333;
+            height: 6px;
+            transform-origin: left center;
+        }
+        .carbon {
+            background-color: #444;
+        }
+        .hydrogen {
+            background-color: #3498db;
+            font-size: 14px;
+            width: 25px;
+            height: 25px;
+        }
+        .question-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .option-btn {
+            background-color: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .option-btn:hover {
+            background-color: #d5dbdb;
+        }
+        .correct {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+        .incorrect {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Hidrokarbon</h1>
+        
+        <div class="intro">
+            <h2>Pengenalan Hidrokarbon</h2>
+            <p>Hidrokarbon adalah senyawa organik yang terdiri dari atom karbon (C) dan hidrogen (H) saja. Mereka merupakan dasar dari kimia organik dan ditemukan dalam bahan bakar fosil seperti minyak bumi dan gas alam.</p>
+            
+            <h3>Jenis-jenis Hidrokarbon:</h3>
+            <ol>
+                <li><strong>Alkana</strong>: Hidrokarbon jenuh dengan ikatan tunggal (C-C). Rumus umum: C<sub>n</sub>H<sub>2n+2</sub></li>
+                <li><strong>Alkena</strong>: Memiliki minimal satu ikatan rangkap dua (C=C). Rumus umum: C<sub>n</sub>H<sub>2n</sub></li>
+                <li><strong>Alkuna</strong>: Memiliki minimal satu ikatan rangkap tiga (C≡C). Rumus umum: C<sub>n</sub>H<sub>2n-2</sub></li>
+            </ol>
+            
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>Jumlah Atom C</th>
+                        <th>Alkana</th>
+                        <th>Alkena</th>
+                        <th>Alkuna</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Metana (CH<sub>4</sub>)</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Etana (C<sub>2</sub>H<sub>6</sub>)</td>
+                        <td>Etena (C<sub>2</sub>H<sub>4</sub>)</td>
+                        <td>Etuna (C<sub>2</sub>H<sub>2</sub>)</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Propana (C<sub>3</sub>H<sub>8</sub>)</td>
+                        <td>Propena (C<sub>3</sub>H<sub>6</sub>)</td>
+                        <td>Propuna (C<sub>3</sub>H<sub>4</sub>)</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Butana (C<sub>4</sub>H<sub>10</sub>)</td>
+                        <td>Butena (C<sub>4</sub>H<sub>8</sub>)</td>
+                        <td>Butuna (C<sub>4</sub>H<sub>6</sub>)</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <p>Hidrokarbon banyak digunakan dalam kehidupan sehari-hari, seperti untuk bahan bakar (bensin, solar, LPG), plastik, obat-obatan, dan banyak lagi.</p>
+        </div>
+        
+        <div class="game-container">
+            <h2>Mari Bermain!</h2>
+            <p>Pilih mode permainan:</p>
+            
+            <div class="game-mode">
+                <button class="mode-btn active" id="identify-btn">Identifikasi Senyawa</button>
+                <button class="mode-btn" id="match-btn">Padankan Rumus</button>
+            </div>
+            
+            <div class="score-container">
+                <div>Skor: <span id="score">0</span></div>
+                <div>Pertanyaan: <span id="question-counter">0</span>/10</div>
+            </div>
+            
+            <div id="game-area">
+                <!-- Game content will be generated here -->
+                <div class="molecule-display" id="molecule-display"></div>
+                <div class="question-container" id="question-container"></div>
+                <div class="options-container" id="options-container"></div>
+                <button class="btn" id="next-btn" disabled>Selanjutnya</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const hydrocarbons = [
+            { name: "Metana", formula: "CH4", type: "Alkana", carbonCount: 1, hydrogenCount: 4, structure: [
+                {atom: "C", x: 50, y: 50, connections: [1,2,3,4]},
+                {atom: "H", x: 30, y: 30, connections: [0]},
+                {atom: "H", x: 70, y: 30, connections: [0]},
+                {atom: "H", x: 30, y: 70, connections: [0]},
+                {atom: "H", x: 70, y: 70, connections: [0]}
+            ]},
+            { name: "Etana", formula: "C2H6", type: "Alkana", carbonCount: 2, hydrogenCount: 6, structure: [
+                {atom: "C", x: 40, y: 50, connections: [1,2,3,6]},
+                {atom: "H", x: 25, y: 35, connections: [0]},
+                {atom: "H", x: 25, y: 65, connections: [0]},
+                {atom: "H", x: 40, y: 30, connections: [0]},
+                {atom: "H", x: 60, y: 30, connections: [6]},
+                {atom: "H", x: 60, y: 70, connections: [6]},
+                {atom: "C", x: 60, y: 50, connections: [0,4,5,7]},
+                {atom: "H", x: 75, y: 50, connections: [6]}
+            ]},
+            { name: "Propana", formula: "C3H8", type: "Alkana", carbonCount: 3, hydrogenCount: 8, structure: [
+                {atom: "C", x: 30, y: 50, connections: [1,2,3,4]},
+                {atom: "H", x: 15, y: 40, connections: [0]},
+                {atom: "H", x: 15, y: 60, connections: [0]},
+                {atom: "H", x: 30, y: 30, connections: [0]},
+                {atom: "C", x: 50, y: 50, connections: [0,5,6,7]},
+                {atom: "H", x: 50, y: 30, connections: [4]},
+                {atom: "H", x: 50, y: 70, connections: [4]},
+                {atom: "C", x: 70, y: 50, connections: [4,8,9,10]},
+                {atom: "H", x: 70, y: 30, connections: [7]},
+                {atom: "H", x: 70, y: 70, connections: [7]},
+                {atom: "H", x: 85, y: 50, connections: [7]}
+            ]},
+            { name: "Butana", formula: "C4H10", type: "Alkana", carbonCount: 4, hydrogenCount: 10, structure: [
+                {atom: "C", x: 20, y: 50, connections: [1,2,3,4]},
+                {atom: "H", x: 10, y: 40, connections: [0]},
+                {atom: "H", x: 10, y: 60, connections: [0]},
+                {atom: "H", x: 20, y: 30, connections: [0]},
+                {atom: "C", x: 40, y: 50, connections: [0,5,6,7]},
+                {atom: "H", x: 40, y: 30, connections: [4]},
+                {atom: "H", x: 40, y: 70, connections: [4]},
+                {atom: "C", x: 60, y: 50, connections: [4,8,9,10]},
+                {atom: "H", x: 60, y: 30, connections: [7]},
+                {atom: "H", x: 60, y: 70, connections: [7]},
+                {atom: "C", x: 80, y: 50, connections: [7,11,12,13]},
+                {atom: "H", x: 80, y: 30, connections: [10]},
+                {atom: "H", x: 80, y: 70, connections: [10]},
+                {atom: "H", x: 90, y: 50, connections: [10]}
+            ]},
+            { name: "Etena", formula: "C2H4", type: "Alkena", carbonCount: 2, hydrogenCount: 4, structure: [
+                {atom: "C", x: 40, y: 50, connections: [1,2,3], doubleBond: 3},
+                {atom: "H", x: 25, y: 40, connections: [0]},
+                {atom: "H", x: 25, y: 60, connections: [0]},
+                {atom: "C", x: 60, y: 50, connections: [0,4,5], doubleBond: 0},
+                {atom: "H", x: 75, y: 40, connections: [3]},
+                {atom: "H", x: 75, y: 60, connections: [3]}
+            ]},
+            { name: "Propena", formula: "C3H6", type: "Alkena", carbonCount: 3, hydrogenCount: 6, structure: [
+                {atom: "C", x: 30, y: 50, connections: [1,2,3], doubleBond: 3},
+                {atom: "H", x: 15, y: 40, connections: [0]},
+                {atom: "H", x: 15, y: 60, connections: [0]},
+                {atom: "C", x: 50, y: 50, connections: [0,4,5], doubleBond: 0},
+                {atom: "H", x: 50, y: 30, connections: [3]},
+                {atom: "C", x: 70, y: 50, connections: [3,6,7,8]},
+                {atom: "H", x: 70, y: 30, connections: [5]},
+                {atom: "H", x: 70, y: 70, connections: [5]},
+                {atom: "H", x: 85, y: 50, connections: [5]}
+            ]},
+            { name: "Etuna", formula: "C2H2", type: "Alkuna", carbonCount: 2, hydrogenCount: 2, structure: [
+                {atom: "C", x: 40, y: 50, connections: [1,2], tripleBond: 2},
+                {atom: "H", x: 25, y: 50, connections: [0]},
+                {atom: "C", x: 60, y: 50, connections: [0,3], tripleBond: 0},
+                {atom: "H", x: 75, y: 50, connections: [2]}
+            ]},
+            { name: "Propuna", formula: "C3H4", type: "Alkuna", carbonCount: 3, hydrogenCount: 4, structure: [
+                {atom: "C", x: 30, y: 50, connections: [1,2], tripleBond: 2},
+                {atom: "H", x: 15, y: 50, connections: [0]},
+                {atom: "C", x: 50, y: 50, connections: [0,3], tripleBond: 0},
+                {atom: "C", x: 70, y: 50, connections: [2,4,5,6]},
+                {atom: "H", x: 70, y: 30, connections: [3]},
+                {atom: "H", x: 70, y: 70, connections: [3]},
+                {atom: "H", x: 85, y: 50, connections: [3]}
+            ]}
+        ];
+
+        // Game variables
+        let currentMode = 'identify';
+        let currentQuestion = null;
+        let currentOptions = [];
+        let score = 0;
+        let questionCounter = 0;
+        let selectedOption = null;
+        let usedQuestions = [];
+
+        // DOM elements
+        const identifyBtn = document.getElementById('identify-btn');
+        const matchBtn = document.getElementById('match-btn');
+        const moleculeDisplay = document.getElementById('molecule-display');
+        const questionContainer = document.getElementById('question-container');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreEl = document.getElementById('score');
+        const questionCounterEl = document.getElementById('question-counter');
+
+        // Event listeners
+        identifyBtn.addEventListener('click', () => {
+            setGameMode('identify');
+        });
+
+        matchBtn.addEventListener('click', () => {
+            setGameMode('match');
+        });
+
+        nextBtn.addEventListener('click', () => {
+            nextQuestion();
+        });
+
+        // Initialize game
+        initGame();
+
+        function initGame() {
+            score = 0;
+            questionCounter = 0;
+            usedQuestions = [];
+            updateScore();
+            setGameMode('identify');
+        }
+
+        function setGameMode(mode) {
+            currentMode = mode;
+            
+            // Update button styles
+            identifyBtn.classList.toggle('active', mode === 'identify');
+            matchBtn.classList.toggle('active', mode === 'match');
+            
+            // Reset game state
+            score = 0;
+            questionCounter = 0;
+            usedQuestions = [];
+            updateScore();
+            
+            // Start with first question
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            // Clear previous state
+            clearMoleculeDisplay();
+            questionContainer.innerHTML = '';
+            optionsContainer.innerHTML = '';
+            nextBtn.disabled = true;
+            selectedOption = null;
+            
+            // Check if game is over
+            if (questionCounter >= 10) {
+                endGame();
+                return;
+            }
+            
+            // Increment question counter
+            questionCounter++;
+            updateScore();
+            
+            // Generate new question based on mode
+            if (currentMode === 'identify') {
+                generateIdentifyQuestion();
+            } else {
+                generateMatchQuestion();
+            }
+        }
+
+        function generateIdentifyQuestion() {
+            // Choose a random hydrocarbon that hasn't been used yet
+            let availableHydrocarbons = hydrocarbons.filter(h => !usedQuestions.includes(h.name));
+            
+            // If all have been used, reset the used questions
+            if (availableHydrocarbons.length === 0) {
+                usedQuestions = [];
+                availableHydrocarbons = hydrocarbons;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableHydrocarbons.length);
+            currentQuestion = availableHydrocarbons[randomIndex];
+            usedQuestions.push(currentQuestion.name);
+            
+            // Draw the molecule
+            drawMolecule(currentQuestion.structure);
+            
+            // Set the question
+            questionContainer.innerHTML = `<h3>Apa nama senyawa hidrokarbon ini?</h3>`;
+            
+            // Generate options (correct answer + 3 random)
+            currentOptions = [currentQuestion.name];
+            
+            while (currentOptions.length < 4) {
+                const randomHydrocarbon = hydrocarbons[Math.floor(Math.random() * hydrocarbons.length)];
+                if (!currentOptions.includes(randomHydrocarbon.name)) {
+                    currentOptions.push(randomHydrocarbon.name);
+                }
+            }
+            
+            // Shuffle options
+            shuffleArray(currentOptions);
+            
+            // Create option buttons
+            currentOptions.forEach(option => {
+                const optionBtn = document.createElement('button');
+                optionBtn.classList.add('option-btn');
+                optionBtn.textContent = option;
+                optionBtn.addEventListener('click', () => selectOption(option));
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+
+        function generateMatchQuestion() {
+            // Choose a random hydrocarbon that hasn't been used yet
+            let availableHydrocarbons = hydrocarbons.filter(h => !usedQuestions.includes(h.name));
+            
+            // If all have been used, reset the used questions
+            if (availableHydrocarbons.length === 0) {
+                usedQuestions = [];
+                availableHydrocarbons = hydrocarbons;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableHydrocarbons.length);
+            currentQuestion = availableHydrocarbons[randomIndex];
+            usedQuestions.push(currentQuestion.name);
+            
+            // Set the question
+            questionContainer.innerHTML = `<h3>Pilih rumus kimia yang tepat untuk ${currentQuestion.name}:</h3>`;
+            
+            // Generate options (correct answer + 3 random)
+            currentOptions = [currentQuestion.formula];
+            
+            while (currentOptions.length < 4) {
+                const randomHydrocarbon = hydrocarbons[Math.floor(Math.random() * hydrocarbons.length)];
+                if (!currentOptions.includes(randomHydrocarbon.formula)) {
+                    currentOptions.push(randomHydrocarbon.formula);
+                }
+            }
+            
+            // Shuffle options
+            shuffleArray(currentOptions);
+            
+            // Create option buttons
+            currentOptions.forEach(option => {
+                const optionBtn = document.createElement('button');
+                optionBtn.classList.add('option-btn');
+                optionBtn.innerHTML = formatFormula(option);
+                optionBtn.addEventListener('click', () => selectOption(option));
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+
+        function formatFormula(formula) {
+            return formula.replace(/(\d+)/g, '<sub>$1</sub>');
+        }
+
+        function selectOption(option) {
+            if (selectedOption !== null) return; // Already selected
+            
+            selectedOption = option;
+            const isCorrect = (currentMode === 'identify' && option === currentQuestion.name) || 
+                              (currentMode === 'match' && option === currentQuestion.formula);
+            
+            // Update UI
+            const optionBtns = optionsContainer.querySelectorAll('.option-btn');
+            optionBtns.forEach(btn => {
+                if ((currentMode === 'identify' && btn.textContent === option) ||
+                    (currentMode === 'match' && btn.innerHTML === formatFormula(option))) {
+                    btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+                
+                // Show correct answer if wrong
+                if (!isCorrect) {
+                    if ((currentMode === 'identify' && btn.textContent === currentQuestion.name) ||
+                        (currentMode === 'match' && btn.innerHTML === formatFormula(currentQuestion.formula))) {
+                        btn.classList.add('correct');
+                    }
+                }
+            });
+            
+            // Update score
+            if (isCorrect) {
+                score++;
+                updateScore();
+            }
+            
+            // Draw molecule if in match mode
+            if (currentMode === 'match') {
+                drawMolecule(currentQuestion.structure);
+            }
+            
+            // Enable next button
+            nextBtn.disabled = false;
+        }
+
+        function clearMoleculeDisplay() {
+            moleculeDisplay.innerHTML = '';
+        }
+
+        function drawMolecule(structure) {
+            clearMoleculeDisplay();
+            const scale = 3;
+            
+            // Draw bonds first (so they appear behind atoms)
+            for (let i = 0; i < structure.length; i++) {
+                const atom = structure[i];
+                for (const connIndex of atom.connections) {
+                    const connectedAtom = structure[connIndex];
+                    
+                    // Skip if already drawn (to avoid duplicates)
+                    if (connIndex < i) continue;
+                    
+                    // Calculate position and angle
+                    const x1 = atom.x * scale;
+                    const y1 = atom.y * scale;
+                    const x2 = connectedAtom.x * scale;
+                    const y2 = connectedAtom.y * scale;
+                    
+                    const deltaX = x2 - x1;
+                    const deltaY = y2 - y1;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                    
+                    // Create bond element
+                    const bond = document.createElement('div');
+                    bond.classList.add('bond');
+                    bond.style.width = `${distance}px`;
+                    bond.style.left = `${x1}px`;
+                    bond.style.top = `${y1}px`;
+                    bond.style.transform = `rotate(${angle}deg)`;
+                    moleculeDisplay.appendChild(bond);
+                    
+                    // For double bonds
+                    if (atom.doubleBond === connIndex || connectedAtom.doubleBond === i) {
+                        const bondOffset = 3;
+                        const perpendicularAngle = angle + 90;
+                        const radPerp = perpendicularAngle * Math.PI / 180;
+                        
+                        const bond2 = document.createElement('div');
+                        bond2.classList.add('bond');
+                        bond2.style.width = `${distance}px`;
+                        bond2.style.left = `${x1 + bondOffset * Math.cos(radPerp)}px`;
+                        bond2.style.top = `${y1 + bondOffset * Math.sin(radPerp)}px`;
+                        bond2.style.transform = `rotate(${angle}deg)`;
+                        moleculeDisplay.appendChild(bond2);
+                    }
+                    
+                    // For triple bonds
+                    if (atom.tripleBond === connIndex || connectedAtom.tripleBond === i) {
+                        const bondOffset = 5;
+                        const perpendicularAngle = angle + 90;
+                        const radPerp = perpendicularAngle * Math.PI / 180;
+                        
+                        const bond2 = document.createElement('div');
+                        bond2.classList.add('bond');
+                        bond2.style.width = `${distance}px`;
+                        bond2.style.left = `${x1 + bondOffset * Math.cos(radPerp)}px`;
+                        bond2.style.top = `${y1 + bondOffset * Math.sin(radPerp)}px`;
+                        bond2.style.transform = `rotate(${angle}deg)`;
+                        moleculeDisplay.appendChild(bond2);
+                        
+                        const bond3 = document.createElement('div');
+                        bond3.classList.add('bond');
+                        bond3.style.width = `${distance}px`;
+                        bond3.style.left = `${x1 - bondOffset * Math.cos(radPerp)}px`;
+                        bond3.style.top = `${y1 - bondOffset * Math.sin(radPerp)}px`;
+                        bond3.style.transform = `rotate(${angle}deg)`;
+                        moleculeDisplay.appendChild(bond3);
+                    }
+                }
+            }
+            
+            // Then draw atoms on top
+            for (const atom of structure) {
+                const atomElement = document.createElement('div');
+                atomElement.classList.add('atom');
+                atomElement.classList.add(atom.atom.toLowerCase());
+                atomElement.style.left = `${atom.x * scale}px`;
+                atomElement.style.top = `${atom.y * scale}px`;
+                atomElement.textContent = atom.atom;
+                moleculeDisplay.appendChild(atomElement);
+            }
+        }
+
+        function updateScore() {
+            scoreEl.textContent = score;
+            questionCounterEl.textContent = questionCounter;
+        }
+
+        function endGame() {
+            clearMoleculeDisplay();
+            questionContainer.innerHTML = `<h2>Permainan Selesai!</h2>`;
+            optionsContainer.innerHTML = `<p>Selamat! Anda mendapatkan skor ${score} dari 10 pertanyaan.</p>`;
+            
+            const restartBtn = document.createElement('button');
+            restartBtn.classList.add('btn');
+            restartBtn.textContent = 'Main Lagi';
+            restartBtn.addEventListener('click', initGame);
+            optionsContainer.appendChild(restartBtn);
+            
+            nextBtn.disabled = true;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+    </script>
+</body>
+</html>
